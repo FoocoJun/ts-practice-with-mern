@@ -1,0 +1,28 @@
+.info-box {
+  padding: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  background: #fff;
+  margin: 0;
+  border-radius: 10px;
+}
+
+.info-box__place {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.info-box__adress {
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.info-box__submit {
+  font-size: 14px;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+  color: #fff;
+  background-color: #0f2cc5;
+  margin-top: 6px;
+  padding: 6px 0;
+}
