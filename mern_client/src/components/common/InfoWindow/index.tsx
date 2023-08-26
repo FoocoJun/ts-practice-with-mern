@@ -5,10 +5,16 @@ import './InfoWindow.css';
 interface InfoWindowProps {
   map: naver.maps.Map;
   selectedInfo: Info | null;
-  onSubmit?: () => void;
+  onSubmit: () => void;
+  type?: 'submit' | 'delete';
 }
 
-function InfoWindow({ map, selectedInfo, onSubmit }: InfoWindowProps) {
+function InfoWindow({
+  map,
+  selectedInfo,
+  onSubmit,
+  type = 'submit',
+}: InfoWindowProps) {
   const [infoWindow, setInfoWindow] =
     React.useState<naver.maps.InfoWindow | null>(null);
 
@@ -31,17 +37,21 @@ function InfoWindow({ map, selectedInfo, onSubmit }: InfoWindowProps) {
   React.useEffect(() => {
     if (!infoWindow || !map) return;
     if (selectedInfo) {
-      infoWindow.setContent(InfoWindowMaker(selectedInfo, onSubmit));
+      infoWindow.setContent(InfoWindowMaker(selectedInfo, onSubmit, type));
       infoWindow.open(map, selectedInfo.position);
     } else {
       infoWindow.close();
     }
-  });
+  }, [infoWindow, map, onSubmit, selectedInfo, type]);
 
   return null;
 }
 
-function InfoWindowMaker(selectedInfo: Info, onSubmit?: () => void) {
+function InfoWindowMaker(
+  selectedInfo: Info,
+  onSubmit: () => void,
+  type?: InfoWindowProps['type']
+) {
   const infoWindowBox = document.createElement('div');
   infoWindowBox.className = 'info-box';
 
@@ -56,13 +66,11 @@ function InfoWindowMaker(selectedInfo: Info, onSubmit?: () => void) {
   infoWindowBox.appendChild(infoWindowPlace);
   infoWindowBox.appendChild(infoWindowAdress);
 
-  if (onSubmit) {
-    const infoWindowSubmit = document.createElement('div');
-    infoWindowSubmit.className = 'info-box__submit';
-    infoWindowSubmit.innerHTML = '등록';
-    infoWindowSubmit.onclick = onSubmit;
-    infoWindowBox.appendChild(infoWindowSubmit);
-  }
+  const infoWindowSubmit = document.createElement('div');
+  infoWindowSubmit.className = `info-box__${type}`;
+  infoWindowSubmit.innerHTML = type === 'submit' ? '등록' : '삭제';
+  infoWindowSubmit.onclick = onSubmit;
+  infoWindowBox.appendChild(infoWindowSubmit);
 
   return infoWindowBox;
 }

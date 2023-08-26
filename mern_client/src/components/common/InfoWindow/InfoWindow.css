@@ -26,3 +26,14 @@
   margin-top: 6px;
   padding: 6px 0;
 }
+
+.info-box__delete {
+  font-size: 14px;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+  color: #fff;
+  background-color: red;
+  margin-top: 6px;
+  padding: 6px 0;
+}

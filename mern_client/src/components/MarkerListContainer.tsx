@@ -1,13 +1,14 @@
 import React from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { mapAtom } from '../atoms/map';
 import { infoListAtom, selectedInfoAtom } from '../atoms/info';
 import Marker from './common/Marker';
 import InfoWindow from './common/InfoWindow';
-import { createInfo } from '../apis/info';
+import { createInfo, deleteInfo } from '../apis/info';
 import { useMutation } from 'react-query';
 import { AxiosError } from 'axios';
 import { HttpCode } from '../types/httpCode';
+import { useResetAtom } from 'jotai/utils';
 
 interface MarkerListContainerProps {
   type?: 'home' | 'upload';
@@ -17,8 +18,10 @@ function MarkerListContainer({ type }: MarkerListContainerProps) {
   const map = useAtomValue(mapAtom);
   const infoList = useAtomValue(infoListAtom);
   const [selectedInfo, setSelectedInfo] = useAtom(selectedInfoAtom);
+  const setInfoListAtom = useSetAtom(infoListAtom);
+  const resetSelectedInfo = useResetAtom(selectedInfoAtom);
 
-  const { mutate } = useMutation(createInfo, {
+  const { mutate: mutateCreateInfo } = useMutation(createInfo, {
     onSuccess: () => {
       alert('업로드 성공');
     },
@@ -32,12 +35,35 @@ function MarkerListContainer({ type }: MarkerListContainerProps) {
     },
   });
 
-  const onSubmit = React.useCallback(() => {
+  const { mutate: mutateDeleteInfo } = useMutation(deleteInfo, {
+    onSuccess: (data) => {
+      alert('삭제 성공');
+      resetSelectedInfo();
+      setInfoListAtom(data.data);
+    },
+    onError: (error: AxiosError) => {
+      const errorStatus = error.response?.status;
+      if (errorStatus === HttpCode.CONFLICT) {
+        alert('중복 된 데이터 입니다.');
+      } else {
+        alert('서버 에러');
+      }
+    },
+  });
+
+  const onSubmitCreate = React.useCallback(() => {
     if (!selectedInfo) {
       return;
     }
-    mutate(selectedInfo);
-  }, [mutate, selectedInfo]);
+    mutateCreateInfo(selectedInfo);
+  }, [mutateCreateInfo, selectedInfo]);
+
+  const onSubmitDelete = React.useCallback(() => {
+    if (!selectedInfo) {
+      return;
+    }
+    mutateDeleteInfo(selectedInfo.id);
+  }, [mutateDeleteInfo, selectedInfo]);
 
   if (!map || !infoList.length) return null;
   return (
@@ -66,7 +92,8 @@ function MarkerListContainer({ type }: MarkerListContainerProps) {
       <InfoWindow
         map={map}
         selectedInfo={selectedInfo}
-        onSubmit={type === 'upload' ? onSubmit : undefined}
+        onSubmit={type === 'upload' ? onSubmitCreate : onSubmitDelete}
+        type={type === 'upload' ? 'submit' : 'delete'}
       />
     </>
   );
