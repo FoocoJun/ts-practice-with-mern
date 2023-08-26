@@ -34,14 +34,17 @@ export default {
   },
 
   deleteInfo: async (req: Request, res: Response, next: NextFunction) => {
-    const info = req.body as Info;
+    const id = Number(req.params.id);
     try {
-      const target = await infoService.getInfo(info.id);
+      const target = await infoService.getInfo(id);
       if (!target) throw new HttpException(HttpCode.NOT_FOUND, 'NOT FOUND 404');
 
-      await infoService.deleteInfo(info.id);
+      await infoService.deleteInfo(id);
+
+      const data = await infoService.getInfoList();
       res.status(HttpCode.OK).json({
         message: 'success',
+        data,
       });
     } catch (error) {
       next(error);

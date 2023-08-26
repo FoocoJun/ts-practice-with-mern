@@ -16,8 +16,8 @@ router.post('/info', infoController.createInfo);
 // 전체 위치 데이터 조회
 router.get('/info', infoController.getInfoList);
 
-// 전체 위치 데이터 조회
-router.delete('/info', infoController.deleteInfo);
+// 위치 데이터 삭제
+router.delete('/info/:id', infoController.deleteInfo);
 
 // 키워드 검색
 router.get('/search', searchController.searchKeyword);
